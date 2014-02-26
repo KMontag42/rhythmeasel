@@ -7,6 +7,9 @@ var color;
 var stroke;
 var colors;
 var index;
+var gestureStart, gestureContainer, gestureShape;
+var inGesture = false;
+var gestureStartX = 200, gestureStartY = 200, gestureEndX = 400, gestureEndY = 350, gestureRadius = 25;
 
 function init() {
     if (window.top != window) {
@@ -24,45 +27,79 @@ function init() {
     createjs.Touch.enable(stage);
     createjs.Ticker.setFPS(24);
 
-    drawingCanvas = new createjs.Shape();
+    gestureContainer = new createjs.Container();
+    stage.addChild(gestureContainer);
+
+    gestureStart = new createjs.Graphics()
+        .setStrokeStyle(gestureRadius)
+        .beginStroke("000")
+        .beginFill("000")
+        .drawCircle(gestureStartX,gestureStartY,5) // can't get this to look right...
+        .lt(gestureEndX,gestureEndY);
+
+    gestureShape = new createjs.Shape(gestureStart);
+
+    gestureContainer.addChild(gestureShape);
+
+    stage.addChild(gestureContainer);
+    stage.update();
+
+    // drawingCanvas = new createjs.Shape();
 
     stage.addEventListener("stagemousedown", handleMouseDown);
     stage.addEventListener("stagemouseup", handleMouseUp);
 
-    title = new createjs.Text("Click and Drag to draw", "36px Arial", "#777777");
-    title.x = 300;
-    title.y = 200;
-    stage.addChild(title);
+    // title = new createjs.Text("Click and Drag to draw", "36px Arial", "#777777");
+    // title.x = 300;
+    // title.y = 200;
+    // stage.addChild(title);
 
-    stage.addChild(drawingCanvas);
-    stage.update();
+    // stage.addChild(drawingCanvas);
+    // stage.update();
 }
 
 function stop() {}
 
 function handleMouseDown(event) {
-    if (stage.contains(title)) { stage.clear(); stage.removeChild(title); }
-    color = colors[(index++)%colors.length];
-    stroke = Math.random()*30 + 10 | 0;
-    oldPt = new createjs.Point(stage.mouseX, stage.mouseY);
-    oldMidPt = oldPt;
-    stage.addEventListener("stagemousemove" , handleMouseMove);
+
+    console.info(stage.mouseX + " " + stage.mouseY);
+
+    if (Math.abs(stage.mouseX - gestureStartX) < gestureRadius && Math.abs(stage.mouseY - gestureStartY) < gestureRadius) {
+        console.log("HIT!");
+        inGesture = true;
+        stage.addEventListener("stagemousemove" , handleMouseMove);
+    } else {
+        inGesture = false;
+    }
 }
 
 function handleMouseMove(event) {
-    var midPt = new createjs.Point(oldPt.x + stage.mouseX>>1, oldPt.y+stage.mouseY>>1);
-
-    drawingCanvas.graphics.clear().setStrokeStyle(stroke, 'round', 'round').beginStroke(color).moveTo(midPt.x, midPt.y).curveTo(oldPt.x, oldPt.y, oldMidPt.x, oldMidPt.y);
-
-    oldPt.x = stage.mouseX;
-    oldPt.y = stage.mouseY;
-
-    oldMidPt.x = midPt.x;
-    oldMidPt.y = midPt.y;
-
-    stage.update();
+    if (gestureShape.hitTest(stage.mouseX, stage.mouseY) && inGesture) {
+        console.log("dragggginnnn");
+    } else {
+        inGesture = false;
+    }
 }
 
 function handleMouseUp(event) {
+
+    console.info(stage.mouseX + " " + stage.mouseY);
+
+    if (Math.abs(stage.mouseX - gestureEndX) < gestureRadius && Math.abs(stage.mouseY - gestureEndY) < gestureRadius && inGesture) {
+        console.log("HIT!");
+
+        gestureStart.c()
+            .ss(gestureRadius)
+            .s("a3f")
+            .f("f3a")
+            .dc(gestureStartX,gestureStartY,5)
+            .lt(gestureEndX,gestureEndY)
+            .ef();
+
+        stage.update();
+    } else {
+        inGesture = false;
+    }
+
     stage.removeEventListener("stagemousemove" , handleMouseMove);
-        }
+}
