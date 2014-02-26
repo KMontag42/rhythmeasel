@@ -9,7 +9,7 @@ var colors;
 var index;
 var gestureStart, gestureContainer, gestureShape;
 var inGesture = false;
-var gestureStartX = 200, gestureStartY = 200, gestureEndX = 400, gestureEndY = 350, gestureRadius = 25;
+var gestureStartX = 200, gestureStartY = 200, gestureEndX = 400, gestureEndY = 350, gestureRadius = 45;
 
 function init() {
     if (window.top != window) {
@@ -34,7 +34,7 @@ function init() {
         .setStrokeStyle(gestureRadius)
         .beginStroke("000")
         .beginFill("000")
-        .drawCircle(gestureStartX,gestureStartY,5) // can't get this to look right...
+        .drawCircle(gestureStartX,gestureStartY,12) // can't get this to look right...
         .lt(gestureEndX,gestureEndY);
 
     gestureShape = new createjs.Shape(gestureStart);
