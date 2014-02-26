@@ -9,7 +9,7 @@ var colors;
 var index;
 var gestureStart, gestureContainer, gestureShape;
 var inGesture = false;
-var gestureStartX = 200, gestureStartY = 200, gestureEndX = 400, gestureEndY = 350, gestureRadius = 45;
+var gestureStartX = 200, gestureStartY = 200, gestureEndX = 400, gestureEndY = 350, gestureRadius = 80;
 
 function init() {
     if (window.top != window) {
@@ -31,10 +31,10 @@ function init() {
     stage.addChild(gestureContainer);
 
     gestureStart = new createjs.Graphics()
-        .setStrokeStyle(gestureRadius)
-        .beginStroke("000")
-        .beginFill("000")
-        .drawCircle(gestureStartX,gestureStartY,12) // can't get this to look right...
+        .ss(gestureRadius, "round", "bevel")
+        .s("000")
+        .f("000")
+        .dc(gestureStartX,gestureStartY,5) // can't get this to look right...
         .lt(gestureEndX,gestureEndY);
 
     gestureShape = new createjs.Shape(gestureStart);
@@ -48,6 +48,16 @@ function init() {
 
     stage.addEventListener("stagemousedown", handleMouseDown);
     stage.addEventListener("stagemouseup", handleMouseUp);
+
+    if ('ontouchstart' in document.documentElement) {
+        canvas.addEventListener('touchstart', function(e) {
+            handleMouseDown();
+        }, false);
+     
+        canvas.addEventListener('touchend', function(e) {
+            handleMouseUp();
+        }, false);
+    }
 
     // title = new createjs.Text("Click and Drag to draw", "36px Arial", "#777777");
     // title.x = 300;
@@ -89,7 +99,7 @@ function handleMouseUp(event) {
         console.log("HIT!");
 
         gestureStart.c()
-            .ss(gestureRadius)
+            .ss(gestureRadius, "round", "bevel")
             .s("a3f")
             .f("f3a")
             .dc(gestureStartX,gestureStartY,5)
